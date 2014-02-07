@@ -66,19 +66,19 @@ class TrackMasterPlayer(threading.Thread):
 
 
     def playmusic(self):
-        clock = pygame.time.Clock()
+        self.clock = pygame.time.Clock()
         pygame.mixer.music.load(self.soundfile['Path'])
         print "Start Playing " + self.soundfile['Title']
         pygame.mixer.music.play()
         pygame.mixer.music.set_endevent(pygame.USEREVENT)
-        quit = False
+        """quit = False
         while not quit:
             clock.tick(30)
             for event in pygame.event.get():
                 if event.type == pygame.USEREVENT:
                     print self.soundfile['Title'] + " Finish"
                     quit = True
-        self.startPlay()
+        self.startPlay()"""
 
     def startPlay(self):
         #pygame.mixer.pre_init(44100, 16, 2, 4096) #frequency, size, channels, buffersize
@@ -93,6 +93,7 @@ class TrackMasterPlayer(threading.Thread):
     def run(self):
         global on
         if(on):
+            """
             pygame.init()
             pygame.mixer.init()
             self.getNext()
@@ -101,10 +102,11 @@ class TrackMasterPlayer(threading.Thread):
             print "Start Playing " + self.soundfile['Title']
             pygame.mixer.music.play()
             pygame.mixer.music.set_endevent(pygame.USEREVENT)
-            print "ON :",on
+            print "ON :",on"""
+            self.startPlay()
             quit = False
             while not quit:
-                clock.tick(30)
+                self.clock.tick(30)
                 if on == 0:
                     print "Playing Stopped"
                     pygame.mixer.music.stop()
@@ -114,8 +116,7 @@ class TrackMasterPlayer(threading.Thread):
                         if event.type == pygame.USEREVENT:
                             print self.soundfile['Title'] + " Finish"
                             quit = True
-            self.getNext()
-            self.run()
+            self.startPlay()
 
             
                                                           
