@@ -114,10 +114,10 @@ class Dialogo:
         play.stopmusic()
 
     def playMusic(self,widget):
-        data = self.getNext()
-        self.canzone.set_text(data['Title'])
+        #data = self.getNext()
+        #self.canzone.set_text(data['Title'])
         
-        play.playSong(data['Path'])   
+        play.playSong("/home/pi/bbraspberry/test-file/01-red-intro.mp3")   
 	
           
 
