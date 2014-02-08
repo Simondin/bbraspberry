@@ -8,16 +8,17 @@ import eyed3
 import httplib
 from httplib2 import Http
 
-on = 0
-start = 0
 
-class TrackMasterPlayer(threading.Thread):
+class TrackMasterPlayer():
 
+    """         
+    Costruttore
+    """
     def __init__(self,path):
-        threading.Thread.__init__(self)
         self.soundfile = []
         self.path = path
 
+            
     def listFiles(self,path):
         fileList = []
         rootdir = path
@@ -65,68 +66,53 @@ class TrackMasterPlayer(threading.Thread):
         a = json.loads(s)
         self.soundfile = a
 
+    def initPlayer(self):
+        pygame.init()
+        pygame.mixer.init()
 
-    def playmusic(self):
+    def playMusic(self):
         self.getNext()
         pygame.mixer.music.load(self.soundfile['Path'])
         print "Start Playing " + self.soundfile['Title']
         pygame.mixer.music.play()
-        pygame.mixer.music.set_endevent(pygame.USEREVENT)
+        pygame.mixer.music.set_endevent(pygame.USEREVENT)        
 
-    def initPlayer(self):
-        pygame.init()
-        pygame.mixer.init()
-        
-        #self.playmusic()
-
-    def stopmusic(self):
+    def stopMusic(self):
         pygame.mixer.music.stop()
+
+
+class StartMusic(threading.Thread):
+
+    def __init__(self):
+
+        threading.Thread.__init__(self)
 
     def run(self):
         time.sleep(3)
         global on
         global start
+        global player
         self.clock = pygame.time.Clock()
-        self.initPlayer()
         if on and start:
             self.clock.tick(30)
             print "...PLAYING..."
-            self.playmusic()
+            player.playMusic()
             quit = False
             while not quit:
                 if not start or not on:
                     print "Playing Stopped"
-                    pygame.mixer.music.stop()
+                    player.stopMusic()
                     quit = True
                 else: 
                     self.clock.tick(30)
                     for event in pygame.event.get():
                             if event.type == pygame.USEREVENT:
-                                print self.soundfile['Title'] + " Finish"
+                                print player.soundfile['Title'] + " Finish"
                                 quit = True
             self.run()
         else:
             time.sleep(1)
             self.run()
-        
-        """
-        if(on):
-            self.startPlay()
-            quit = False
-            while not quit:
-                self.clock.tick(30)
-                if on == 0:
-                    print "Playing Stopped"
-                    pygame.mixer.music.stop()
-                    quit = True
-                else:
-                    for event in pygame.event.get():
-                        if event.type == pygame.USEREVENT:
-                            print self.soundfile['Title'] + " Finish"
-                            quit = True
-            self.startPlay()
-        """
-            
                                                           
 
 
@@ -142,8 +128,6 @@ class StopMusic(threading.Thread):
         global start
         if(on):
             time.sleep(10)
-            on = 0
-            start = 0
             print "Stop Playing"
         else:
             time.sleep(1)
@@ -159,16 +143,30 @@ class StartMusic(threading.Thread):
     def run(self):
         global on
         global start
-        if(not on):
+        if(on and anniversario0809
+            SSS):
             time.sleep(1)
-            on = 1
-            start = 1
             print "Start Playing"
         else:
             time.sleep(1)
             self.run()
 
+class Booting(threading.Thread):
+    
+    def __init__(self):
 
+        threading.Thread.__init__(self)
+
+    def run(self):
+        global on
+        global start
+        on = 1
+        start = 0
+        print "...Booting..."
+
+
+on = 0
+start = 0
 t1 = TrackMasterPlayer("/home/simone/Musica")
 t2 = StopMusic()
 t3 = StartMusic()
@@ -178,9 +176,3 @@ t3.start()
 t1.join()
 #t2.join()
 t3.join()
-
-"""
-a = TrackMasterPlayer("/home/simone/Musica")
-a.synchMusic()
-a.startPlay()
-"""
