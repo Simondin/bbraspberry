@@ -143,8 +143,7 @@ class StartMusic(threading.Thread):
     def run(self):
         global on
         global start
-        if(on and anniversario0809
-            SSS):
+        if(on and start):
             time.sleep(1)
             print "Start Playing"
         else:
