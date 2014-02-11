@@ -10,38 +10,41 @@ from httplib2 import Http
 from LCD.Adafruit_CharLCDPlate import Adafruit_CharLCDPlate
 
 
-class TrackMasterPlayer(threading.Thread):
+class TrackMaster():
 
-    def __init__(self,path):
-        threading.Thread.__init__(self)
+    def __init__(self):
         self.soundfile = []
+        self.path = "/home/pi/bbraspberry/test-file/"
 	self.title = "Happy"
-	self.canzone = path + "happy.mp3"
-        self.path = path
+	self.canzone = self.path + "happy.mp3"
+	pygame.init()
+        pygame.mixer.init()
 
-    def listFiles(self,path):
+    def listFiles(self):
         fileList = []
-        rootdir = path
+        rootdir = self.path
         for root, subFolders, files in os.walk(rootdir):
             for file in files:
                 if file.endswith('.mp3'):
                     fileList.append(os.path.join(root,file))
         return fileList
 
-    def readTag(self,path):
-        audiofile = eyed3.load(path)
+    def readTag(self,file):
+        audiofile = eyed3.load(file)
+	
         data = {
             'title': audiofile.tag.title,
             'author': audiofile.tag.artist,
             'album': audiofile.tag.album,
-            'path': path,
-            'genre': "genre"
+            'path': file,
+            'genre': "genre",
+	    'durata': audiofile.info.time_secs,
         }
         return data
 
-    def getData(self,path):
+    def getData(self):
         data = {}
-        files = self.listFiles(path)
+        files = self.listFiles()
         i = 0
         for file in files:
             if file.endswith('.mp3'):
@@ -65,10 +68,7 @@ class TrackMasterPlayer(threading.Thread):
         s = r1.read()
         a = json.loads(s)
         self.soundfile = a"""
-
-    def initPlayer(self):
-        pygame.init()
-        pygame.mixer.init()
+       
 
     def playMusic(self):
         self.getNext()
@@ -81,25 +81,32 @@ class TrackMasterPlayer(threading.Thread):
     def stopMusic(self):
         pygame.mixer.music.stop()
 
+
+class Player(threading.Thread):
+    
+    def __init__(self):
+        threading.Thread.__init__(self)
+
     def run(self):
         time.sleep(3)
         global on
         global lcd
         global start
-        self.initPlayer()
+	global track_master
         self.clock = pygame.time.Clock()
+        #print self.getData(self.path)
         if on :
             if start:
                 self.clock.tick(30)
                 print "...PLAYING..."
                 lcd.clear()
-                lcd.message("ON AIR \n"+self.title)
-                self.playMusic()
+                lcd.message("ON AIR \n"+track_master.title)
+                track_master.playMusic()
                 quit = False
                 while not quit:
                     if not start or not on:
                         print "Playing Stopped"
-                        self.stopMusic()
+                        track_master.stopMusic()
                         quit = True
                     else: 
                         self.clock.tick(30)
@@ -232,7 +239,7 @@ class Switchon(threading.Thread):
         lcd.message("Ready!")
         print "Ready"
 
-        t1 = TrackMasterPlayer("/home/pi/bbraspberry/test-file/")
+        t1 = Player()
         t2 = StopMusic()
         t3 = StartMusic()
         t4 = Switchoff()
@@ -249,6 +256,8 @@ class Switchon(threading.Thread):
         
 on = 0
 start = 0
+track_master = TrackMaster()
+print track_master.getData()
 lcd = Adafruit_CharLCDPlate(busnum = 1)
 t = Switchon()
 t.start()
