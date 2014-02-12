@@ -56,19 +56,18 @@ class TrackMaster():
     def synchMusic(self):
         myData = self.getData(self.path)
         http_obj = Http()
-        http_obj.request(uri='http://localhost/blackbox-rest/app-rest/synch',method='POST',headers={'Content-Type': 'application/json; charset=UTF-8'}, body=json.dumps(myData),)
+        http_obj.request(uri='http://blackbox-rest.gopagoda.com/app-rest/synch',method='POST',headers={'Content-Type': 'application/json; charset=UTF-8'}, body=json.dumps(myData),)
         print json.dumps(myData)
         return json.dumps(myData)
 
     def getNext(self):
-        """conn = httplib.HTTPConnection("127.0.0.1")
+        conn = httplib.HTTPConnection("http://blackbox-rest.gopagoda.com")
         conn.connect()
-        conn.request("GET", "/blackbox-rest/app-rest/next")
+        conn.request("GET", "/app-rest/next")
         r1 = conn.getresponse()
         s = r1.read()
         a = json.loads(s)
-        self.soundfile = a"""
-       
+        self.soundfile = a       
 
     def playMusic(self):
         self.getNext()
