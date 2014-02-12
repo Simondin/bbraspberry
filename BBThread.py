@@ -4,7 +4,7 @@ import sys
 import json
 import threading
 import time
-import eyed3
+from hsaudiotag import auto
 import httplib
 from httplib2 import Http
 from LCD.Adafruit_CharLCDPlate import Adafruit_CharLCDPlate
@@ -15,9 +15,9 @@ class TrackMaster():
     def __init__(self):
         self.soundfile = []
         self.path = "/home/pi/bbraspberry/test-file/"
-	self.title = "Happy"
-	self.canzone = self.path + "happy.mp3"
-	pygame.init()
+	    self.title = "Happy"
+	    self.canzone = self.path + "happy.mp3"
+	    pygame.init()
         pygame.mixer.init()
 
     def listFiles(self):
@@ -30,16 +30,16 @@ class TrackMaster():
         return fileList
 
     def readTag(self,file):
-        audiofile = eyed3.load(file)
-	
+        audiofile = auto.File(path)
         data = {
-            'title': audiofile.tag.title,
-            'author': audiofile.tag.artist,
-            'album': audiofile.tag.album,
-            'path': file,
-            'genre': "genre",
-	    'durata': audiofile.info.time_secs,
+            'title': audiofile.title,
+            'author': audiofile.artist,
+            'album': audiofile.album,
+            'path': path,
+            'genre': audiofile.genre,
+            'durata': audiofile.duration,
         }
+
         return data
 
     def getData(self):
@@ -92,7 +92,7 @@ class Player(threading.Thread):
         global on
         global lcd
         global start
-	global track_master
+	    global track_master
         self.clock = pygame.time.Clock()
         #print self.getData(self.path)
         if on :
@@ -160,9 +160,9 @@ class StartMusic(threading.Thread):
     def run(self):
         global on
         global start
-	global lcd
-	btn = lcd.RIGHT
-	while True:
+	    global lcd
+	    btn = lcd.RIGHT
+	    while True:
             if on :
                 if not start :
                     if lcd.buttonPressed(btn):
@@ -184,21 +184,21 @@ class Switchoff(threading.Thread):
     
     def run(self):
         global on
-	global lcd
-	btn = lcd.SELECT
-	while True:
+	    global lcd
+	    btn = lcd.SELECT
+	    while True:
             if on :
-	    	if lcd.buttonPressed(btn):
+	    	    if lcd.buttonPressed(btn):
                     start = 0
                     on = 0
                     time.sleep(1)
                     lcd.clear()
                     lcd.message("Switch Off...")
-		    print "Switch off..."
-		    time.sleep(2)
-		    lcd.clear()
-		    lcd.backlight(lcd.OFF)
-		    return
+		            print "Switch off..."
+		            time.sleep(2)
+		            lcd.clear()
+		            lcd.backlight(lcd.OFF)
+		            return
             else:
                 time.sleep(1)
 
@@ -213,8 +213,8 @@ class Switchon(threading.Thread):
     
     def run(self):
         global on
-	global lcd
-	global start
+	    global lcd
+	    global start
         lcd.clear()
         lcd.message("...BOOTING...")
         print "...Booting..."
@@ -262,10 +262,3 @@ lcd = Adafruit_CharLCDPlate(busnum = 1)
 t = Switchon()
 t.start()
 t.join()
-
-
-"""
-a = TrackMasterPlayer("/home/simone/Musica")
-a.synchMusic()
-a.startPlay()
-"""
