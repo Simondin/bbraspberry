@@ -15,9 +15,7 @@ class TrackMaster():
     def __init__(self):
         self.soundfile = []
         self.path = "/home/pi/bbraspberry/test-file/"
-	    self.title = "Happy"
-	    self.canzone = self.path + "happy.mp3"
-	    pygame.init()
+	pygame.init()
         pygame.mixer.init()
 
     def listFiles(self):
@@ -30,16 +28,15 @@ class TrackMaster():
         return fileList
 
     def readTag(self,file):
-        audiofile = auto.File(path)
+        audiofile = auto.File(file)
         data = {
             'title': audiofile.title,
             'author': audiofile.artist,
             'album': audiofile.album,
-            'path': path,
+            'path': file,
             'genre': audiofile.genre,
             'durata': audiofile.duration,
         }
-
         return data
 
     def getData(self):
@@ -54,20 +51,20 @@ class TrackMaster():
         return data
 
     def synchMusic(self):
-        myData = self.getData(self.path)
+        myData = self.getData()
+	print json.dumps(myData)
         http_obj = Http()
         http_obj.request(uri='http://blackbox-rest.gopagoda.com/app-rest/synch',method='POST',headers={'Content-Type': 'application/json; charset=UTF-8'}, body=json.dumps(myData),)
-        print json.dumps(myData)
         return json.dumps(myData)
 
     def getNext(self):
-        conn = httplib.HTTPConnection("http://blackbox-rest.gopagoda.com")
+        conn = httplib.HTTPConnection("blackbox-rest.gopagoda.com")
         conn.connect()
         conn.request("GET", "/app-rest/next")
         r1 = conn.getresponse()
         s = r1.read()
         a = json.loads(s)
-        self.soundfile = a       
+        self.canzone = a       
 
     def playMusic(self):
         self.getNext()
@@ -91,7 +88,7 @@ class Player(threading.Thread):
         global on
         global lcd
         global start
-	    global track_master
+	global track_master
         self.clock = pygame.time.Clock()
         #print self.getData(self.path)
         if on :
@@ -99,8 +96,8 @@ class Player(threading.Thread):
                 self.clock.tick(30)
                 print "...PLAYING..."
                 lcd.clear()
-                lcd.message("ON AIR \n"+track_master.title)
                 track_master.playMusic()
+		lcd.message("ON AIR \n"+track_master.canzone['title'])
                 quit = False
                 while not quit:
                     if not start or not on:
@@ -159,20 +156,20 @@ class StartMusic(threading.Thread):
     def run(self):
         global on
         global start
-	    global lcd
-	    btn = lcd.RIGHT
-	    while True:
-            if on :
-                if not start :
-                    if lcd.buttonPressed(btn):
-                        lcd.clear()
-                        lcd.message("Start Music")
-                        print "Start Music"
-                        start = 1
-                else:
-                    time.sleep(1)
-            else:
-                return
+	global lcd
+	btn = lcd.RIGHT
+	while True:
+        	if on :
+        		if not start :
+	                    if lcd.buttonPressed(btn):
+	                        lcd.clear()
+	                        lcd.message("Start Music")
+	                        print "Start Music"
+	                        start = 1
+	                else:
+	                    time.sleep(1)
+	        else:
+	        	return
 
 class Switchoff(threading.Thread):
     
@@ -183,21 +180,21 @@ class Switchoff(threading.Thread):
     
     def run(self):
         global on
-	    global lcd
-	    btn = lcd.SELECT
-	    while True:
+	global lcd
+	btn = lcd.SELECT
+	while True:
             if on :
-	    	    if lcd.buttonPressed(btn):
+		if lcd.buttonPressed(btn):
                     start = 0
                     on = 0
                     time.sleep(1)
                     lcd.clear()
                     lcd.message("Switch Off...")
-		            print "Switch off..."
-		            time.sleep(2)
-		            lcd.clear()
-		            lcd.backlight(lcd.OFF)
-		            return
+		    print "Switch off..."
+		    time.sleep(2)
+		    lcd.clear()
+		    lcd.backlight(lcd.OFF)
+		    return
             else:
                 time.sleep(1)
 
@@ -212,8 +209,9 @@ class Switchon(threading.Thread):
     
     def run(self):
         global on
-	    global lcd
-	    global start
+	global lcd
+	global start
+	global track_master
         lcd.clear()
         lcd.message("...BOOTING...")
         print "...Booting..."
@@ -228,6 +226,7 @@ class Switchon(threading.Thread):
                 lcd.clear()
                 lcd.message("Synch...")
                 print "Synch..."
+		track_master.synch()
                 time.sleep(2)
                 ready = True
                 
