@@ -14,7 +14,7 @@ class TrackMaster():
 
     def __init__(self):
         self.soundfile = []
-        self.path = "/home/pi/bbraspberry/test-file/"
+        self.path = "/media/"
 	pygame.init()
         pygame.mixer.init()
 
@@ -68,8 +68,8 @@ class TrackMaster():
 
     def playMusic(self):
         self.getNext()
-        pygame.mixer.music.load(self.canzone)
-        print "Start Playing " + self.title
+        pygame.mixer.music.load(self.canzone['Path'])
+        print "Start Playing " + self.canzone['Title']
         pygame.mixer.music.play()
         pygame.mixer.music.set_endevent(pygame.USEREVENT) 
 
@@ -84,20 +84,18 @@ class Player(threading.Thread):
         threading.Thread.__init__(self)
 
     def run(self):
-        time.sleep(3)
         global on
         global lcd
         global start
 	global track_master
         self.clock = pygame.time.Clock()
-        #print self.getData(self.path)
         if on :
             if start:
                 self.clock.tick(30)
                 print "...PLAYING..."
+		track_master.playMusic()
                 lcd.clear()
-                track_master.playMusic()
-		lcd.message("ON AIR \n"+track_master.canzone['title'])
+		lcd.message("ON AIR \n"+track_master.canzone['Title'])
                 quit = False
                 while not quit:
                     if not start or not on:
@@ -108,7 +106,7 @@ class Player(threading.Thread):
                         self.clock.tick(30)
                         for event in pygame.event.get():
                                 if event.type == pygame.USEREVENT:
-                                    print self.title + " Finish"
+                                    print track_master.canzone['Title'] + " Finish"
                                     quit = True
                 self.run()
             else:
@@ -226,7 +224,7 @@ class Switchon(threading.Thread):
                 lcd.clear()
                 lcd.message("Synch...")
                 print "Synch..."
-		track_master.synch()
+		track_master.synchMusic()
                 time.sleep(2)
                 ready = True
                 
@@ -255,7 +253,6 @@ class Switchon(threading.Thread):
 on = 0
 start = 0
 track_master = TrackMaster()
-print track_master.getData()
 lcd = Adafruit_CharLCDPlate(busnum = 1)
 t = Switchon()
 t.start()
