@@ -14,9 +14,10 @@ class TrackMaster():
 
     def __init__(self):
         self.soundfile = []
-        self.path = "/media/"
+        self.path = "/media/LEXAR/TrackMaster"
 	pygame.init()
         pygame.mixer.init()
+	pygame.mixer.music.set_volume(1.00)
 
     def listFiles(self):
         fileList = []
@@ -33,7 +34,7 @@ class TrackMaster():
             'title': audiofile.title,
             'author': audiofile.artist,
             'album': audiofile.album,
-            'path': file,
+            'path': file.split("/TrackMaster")[-1],
             'genre': audiofile.genre,
             'durata': audiofile.duration,
         }
@@ -68,7 +69,7 @@ class TrackMaster():
 
     def playMusic(self):
         self.getNext()
-        pygame.mixer.music.load(self.canzone['Path'])
+        pygame.mixer.music.load(self.path + self.canzone['Path'])
         print "Start Playing " + self.canzone['Title']
         pygame.mixer.music.play()
         pygame.mixer.music.set_endevent(pygame.USEREVENT) 
