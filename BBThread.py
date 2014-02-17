@@ -34,7 +34,7 @@ class TrackMaster():
             'title': audiofile.title,
             'author': audiofile.artist,
             'album': audiofile.album,
-            'path': file.split("/TrackMaster")[-1],
+            'path': file.split("/TrackMaster")[1],
             'genre': audiofile.genre,
             'durata': audiofile.duration,
         }
